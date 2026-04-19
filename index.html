@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,7 +25,9 @@
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -33,7 +36,9 @@
       color: var(--text);
     }
 
-    [hidden] { display: none !important; }
+    [hidden] {
+      display: none !important;
+    }
 
     .app {
       display: grid;
@@ -41,7 +46,10 @@
       min-height: 100vh;
     }
 
-    .sidebar, .main { padding: 20px; }
+    .sidebar,
+    .main {
+      padding: 20px;
+    }
 
     .sidebar {
       background: rgba(255, 255, 255, 0.9);
@@ -60,13 +68,38 @@
       box-shadow: var(--shadow);
     }
 
-    h1, h2, h3, p { margin-top: 0; }
-    h1 { font-size: 1.5rem; margin-bottom: 8px; }
-    h2 { font-size: 1rem; margin-bottom: 12px; }
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
 
-    .muted { color: var(--muted); line-height: 1.5; }
-    .controls { display: grid; gap: 12px; }
-    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
 
     input[type="file"] {
       width: 100%;
@@ -76,7 +109,11 @@
       background: #fbfdff;
     }
 
-    .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
     select {
       width: 100%;
@@ -104,8 +141,16 @@
       box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08);
     }
 
-    button:disabled { cursor: not-allowed; opacity: 0.5; }
-    .primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
 
     .status {
       padding: 12px 14px;
@@ -117,8 +162,17 @@
       white-space: pre-wrap;
     }
 
-    .status.success { background: #ecfdf3; border-color: #bbf7d0; color: var(--success); }
-    .status.error { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+    .status.success {
+      background: #ecfdf3;
+      border-color: #bbf7d0;
+      color: var(--success);
+    }
+
+    .status.error {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: var(--danger);
+    }
 
     .stats {
       display: grid;
@@ -133,8 +187,17 @@
       border: 1px solid var(--border);
     }
 
-    .stat-card strong { display: block; font-size: 1.4rem; margin-top: 6px; }
-    details summary { cursor: pointer; font-weight: 600; margin-bottom: 10px; }
+    .stat-card strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-top: 6px;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
 
     pre {
       margin: 0;
@@ -150,7 +213,10 @@
       word-break: break-word;
     }
 
-    .legend { display: grid; gap: 8px; }
+    .legend {
+      display: grid;
+      gap: 8px;
+    }
 
     .legend-item {
       display: flex;
@@ -160,8 +226,18 @@
       font-size: 0.94rem;
     }
 
-    .swatch { width: 14px; height: 14px; border-radius: 999px; flex: none; }
-    .main { display: flex; flex-direction: column; gap: 16px; }
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      flex: none;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
     .canvas-toolbar {
       display: flex;
@@ -240,7 +316,7 @@
       font-size: 0.9rem;
     }
 
-    .pie-options > div {
+    .pie-options>div {
       min-width: 220px;
     }
 
@@ -257,8 +333,15 @@
       box-shadow: var(--shadow);
     }
 
-    svg { display: block; min-width: 100%; }
-    #pieChart { width: 100%; min-height: 680px; }
+    svg {
+      display: block;
+      min-width: 100%;
+    }
+
+    #pieChart {
+      width: 100%;
+      min-height: 680px;
+    }
 
     .empty-state {
       display: grid;
@@ -269,19 +352,71 @@
       padding: 32px;
     }
 
-    .node { cursor: pointer; }
-    .node rect { stroke-width: 1.5; filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.08)); }
-    .node text { fill: #102033; font-size: 13px; font-weight: 600; pointer-events: none; }
-    .node .meta { fill: #5b6b83; font-size: 11px; font-weight: 500; }
-    .node.selected rect { stroke: #111827; stroke-width: 2.5; }
-    .edge { fill: none; stroke: #9bb0d9; stroke-width: 2; opacity: 0.9; }
-    .node-root rect { fill: #dbeafe; stroke: var(--root); }
-    .node-type-belanghebbende rect { fill: #ccfbf1; stroke: var(--stakeholder); }
-    .node-type-actor rect { fill: #ede9fe; stroke: var(--actor-type); }
-    .node-actor rect { fill: #ffedd5; stroke: var(--actor); }
-    .node-omschrijving rect { fill: #f3f4f6; stroke: var(--description); }
+    .node {
+      cursor: pointer;
+    }
 
-    .details-list { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.5; }
+    .node rect {
+      stroke-width: 1.5;
+      filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.08));
+    }
+
+    .node text {
+      fill: #102033;
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .node .meta {
+      fill: #5b6b83;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .node.selected rect {
+      stroke: #111827;
+      stroke-width: 2.5;
+    }
+
+    .edge {
+      fill: none;
+      stroke: #9bb0d9;
+      stroke-width: 2;
+      opacity: 0.9;
+    }
+
+    .node-root rect {
+      fill: #dbeafe;
+      stroke: var(--root);
+    }
+
+    .node-type-belanghebbende rect {
+      fill: #ccfbf1;
+      stroke: var(--stakeholder);
+    }
+
+    .node-type-actor rect {
+      fill: #ede9fe;
+      stroke: var(--actor-type);
+    }
+
+    .node-actor rect {
+      fill: #ffedd5;
+      stroke: var(--actor);
+    }
+
+    .node-omschrijving rect {
+      fill: #f3f4f6;
+      stroke: var(--description);
+    }
+
+    .details-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
 
     .pill {
       display: inline-flex;
@@ -356,23 +491,40 @@
       line-height: 1.5;
     }
 
-    code { font-family: Consolas, "Courier New", monospace; font-size: 0.92em; }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
 
     @media (max-width: 1100px) {
-      .app { grid-template-columns: 1fr; }
-      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
-      .canvas-wrap { min-height: 560px; }
-      .pie-layout { grid-template-columns: 1fr; }
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .canvas-wrap {
+        min-height: 560px;
+      }
+
+      .pie-layout {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="app">
     <aside class="sidebar">
       <section class="panel">
         <h1>Actorenlijst Belgie mind map</h1>
         <p class="muted">
-          Load an <code>.xlsx</code> workbook, convert the <code>Actorenlijst België</code> sheet to JSON rows in the browser,
+          Load an <code>.xlsx</code> workbook, convert the <code>Actorenlijst België</code> sheet to JSON rows in the
+          browser,
           and render the relationships as a mind map.
         </p>
       </section>
@@ -386,7 +538,8 @@
           <button id="loadRepositoryWorkbook" class="primary" type="button">Try loading input workbook</button>
           <button id="downloadJson" type="button" disabled>Download JSON</button>
         </div>
-        <div id="statusMessage" class="status">Select <code>input/Inventarisatie.xlsx</code>, or use the load button if this page is served from the repository.</div>
+        <div id="statusMessage" class="status">Select <code>input/Inventarisatie.xlsx</code>, or use the load button if
+          this page is served from the repository.</div>
       </section>
 
       <section class="panel">
@@ -432,7 +585,8 @@
             <code>Type belanghebbende -&gt; Type actor -&gt; Actor -&gt; Omschrijving</code>.
           </div>
           <div class="muted">
-            Slash-delimited values in <code>Type belanghebbende</code> and <code>Type actor</code> are expanded into separate relationships.
+            Slash-delimited values in <code>Type belanghebbende</code> and <code>Type actor</code> are expanded into
+            separate relationships.
           </div>
         </div>
         <div class="button-row">
@@ -440,8 +594,11 @@
         </div>
         <div class="view-controls">
           <div class="tabs" role="tablist" aria-label="Visualization mode">
-            <button id="mindmapTab" class="tab-button active" type="button" role="tab" aria-selected="true">Mind map</button>
+            <button id="mindmapTab" class="tab-button active" type="button" role="tab" aria-selected="true">Mind
+              map</button>
             <button id="pieTab" class="tab-button" type="button" role="tab" aria-selected="false">Pie chart</button>
+            <button id="connectionsTab" class="tab-button" type="button" role="tab"
+              aria-selected="false">Connections</button>
           </div>
           <div id="pieOptions" class="pie-options" hidden>
             <div>
@@ -473,15 +630,18 @@
         </div>
         <svg id="mindmap" xmlns="http://www.w3.org/2000/svg" hidden></svg>
         <div id="pieChart" hidden></div>
+        <svg id="connectionsGraph" xmlns="http://www.w3.org/2000/svg" hidden></svg>
       </section>
     </main>
   </div>
 
   <script>
     const TARGET_SHEET_NAME = "Actorenlijst België";
+    const CONNECTIONS_SHEET_NAME = "Connections";
     const ROOT_LABEL = "Actorenlijst België";
     const REPOSITORY_WORKBOOK_PATH = "input/Inventarisatie.xlsx";
     const MULTI_VALUE_FIELDS = new Set(["Type belanghebbende", "Type actor"]);
+    const CONNECTION_FIELDS = ["Actor", "Connected To", "Reason"];
     const FIELD_SEQUENCE = [
       { key: "Type belanghebbende", kind: "type-belanghebbende", maxChars: 22 },
       { key: "Type actor", kind: "type-actor", maxChars: 22 },
@@ -512,6 +672,7 @@
       fitView: document.getElementById("fitView"),
       mindmapTab: document.getElementById("mindmapTab"),
       pieTab: document.getElementById("pieTab"),
+      connectionsTab: document.getElementById("connectionsTab"),
       pieOptions: document.getElementById("pieOptions"),
       pieFieldSelect: document.getElementById("pieFieldSelect"),
       filterBar: document.getElementById("filterBar"),
@@ -529,19 +690,23 @@
       emptyStateTitle: document.getElementById("emptyStateTitle"),
       emptyStateMessage: document.getElementById("emptyStateMessage"),
       mindmap: document.getElementById("mindmap"),
-      pieChart: document.getElementById("pieChart")
+      pieChart: document.getElementById("pieChart"),
+      connectionsGraph: document.getElementById("connectionsGraph")
     };
 
     const state = {
       allRows: [],
+      connectionRows: [],
       rows: [],
       graph: null,
+      connectionsGraph: null,
       selectedNodeId: null,
       filters: createEmptyFilters(),
       viewMode: "mindmap",
       pieField: "Type belanghebbende",
       pieChart: null,
-      selectedPieSegmentKey: null
+      selectedPieSegmentKey: null,
+      selectedConnectionNodeId: null
     };
     const filterSelects = new Map();
 
@@ -596,6 +761,10 @@
       setViewMode("pie");
     });
 
+    elements.connectionsTab.addEventListener("click", () => {
+      setViewMode("connections");
+    });
+
     elements.pieFieldSelect.addEventListener("change", () => {
       state.pieField = elements.pieFieldSelect.value;
       state.selectedPieSegmentKey = null;
@@ -617,21 +786,26 @@
       try {
         const zipEntries = await readZipEntries(buffer);
         const rows = await extractSheetRows(zipEntries, TARGET_SHEET_NAME);
+        const connectionRows = await extractConnectionsRows(zipEntries, CONNECTIONS_SHEET_NAME);
         if (!rows.length) {
           throw new Error("No non-empty data rows were found in the target sheet.");
         }
         state.allRows = rows;
+        state.connectionRows = connectionRows;
         resetFilters();
         renderFilterControls();
         applyFilters();
         setSuccess("Loaded " + sourceLabel + " with " + rows.length + " JSON row(s) from " + TARGET_SHEET_NAME + ".");
       } catch (error) {
         state.allRows = [];
+        state.connectionRows = [];
         state.rows = [];
         state.graph = null;
         state.pieChart = null;
+        state.connectionsGraph = null;
         state.selectedNodeId = null;
         state.selectedPieSegmentKey = null;
+        state.selectedConnectionNodeId = null;
         resetFilters();
         renderFilterControls();
         updateStats();
@@ -646,22 +820,31 @@
     function updateStats() {
       const graph = state.graph;
       const pieChart = state.pieChart;
+      const connectionsGraph = state.connectionsGraph;
       elements.rowsCount.textContent = state.allRows.length && state.rows.length !== state.allRows.length
         ? state.rows.length + " / " + state.allRows.length
         : String(state.rows.length);
       elements.nodesCount.textContent = state.viewMode === "pie"
         ? (pieChart ? String(pieChart.segments.length) : "0")
-        : (graph ? String(graph.nodes.length) : "0");
+        : state.viewMode === "connections"
+          ? (connectionsGraph ? String(connectionsGraph.nodes.length) : "0")
+          : (graph ? String(graph.nodes.length) : "0");
       elements.edgesCount.textContent = state.viewMode === "pie"
         ? (pieChart ? String(pieChart.total) : "0")
-        : (graph ? String(graph.edges.length) : "0");
+        : state.viewMode === "connections"
+          ? (connectionsGraph ? String(connectionsGraph.edges.length) : "0")
+          : (graph ? String(graph.edges.length) : "0");
       elements.depthCount.textContent = state.viewMode === "pie"
         ? "1"
-        : (graph ? String(graph.maxDepth) : "0");
+        : state.viewMode === "connections"
+          ? "0"
+          : (graph ? String(graph.maxDepth) : "0");
       elements.downloadJson.disabled = !state.rows.length;
       elements.fitView.disabled = state.viewMode === "pie"
         ? !(pieChart && pieChart.segments.length)
-        : (!graph || !graph.nodes.length);
+        : state.viewMode === "connections"
+          ? !(connectionsGraph && connectionsGraph.nodes.length)
+          : (!graph || !graph.nodes.length);
       elements.clearFilters.disabled = !state.allRows.length || !hasActiveFilters();
     }
 
@@ -672,6 +855,10 @@
     function renderSelection() {
       if (state.viewMode === "pie") {
         renderPieSelection();
+        return;
+      }
+      if (state.viewMode === "connections") {
+        renderConnectionsSelection();
         return;
       }
 
@@ -744,9 +931,9 @@
       elements.selectionInfo.innerHTML =
         '<h3 style="margin-bottom:8px;">' + escapeHtml(selectedSegment.label) + '</h3>' +
         '<div>' +
-          '<span class="pill">Category: ' + escapeHtml(state.pieField) + '</span>' +
-          '<span class="pill">Rows: ' + selectedSegment.count + '</span>' +
-          '<span class="pill">Actors: ' + actorMap.size + '</span>' +
+        '<span class="pill">Category: ' + escapeHtml(state.pieField) + '</span>' +
+        '<span class="pill">Rows: ' + selectedSegment.count + '</span>' +
+        '<span class="pill">Actors: ' + actorMap.size + '</span>' +
         '</div>';
 
       const actorEntries = Array.from(actorMap.entries()).sort((left, right) => left[0].localeCompare(right[0]));
@@ -763,9 +950,38 @@
         : '<p class="muted">No actors are available for this slice.</p>';
     }
 
+    function renderConnectionsSelection() {
+      if (!state.connectionsGraph || !state.connectionsGraph.nodeById.has(state.selectedConnectionNodeId)) {
+        elements.selectionInfo.textContent = "Click a node in the connections graph to inspect its relations.";
+        elements.selectionRows.innerHTML = "";
+        return;
+      }
+
+      const node = state.connectionsGraph.nodeById.get(state.selectedConnectionNodeId);
+      const outgoing = state.connectionsGraph.edges.filter((edge) => edge.from.id === node.id);
+      const incoming = state.connectionsGraph.edges.filter((edge) => edge.to.id === node.id);
+
+      elements.selectionInfo.innerHTML =
+        '<h3 style="margin-bottom:8px;">' + escapeHtml(node.label) + '</h3>' +
+        '<div>' +
+        '<span class="pill">Outgoing: ' + outgoing.length + '</span>' +
+        '<span class="pill">Incoming: ' + incoming.length + '</span>' +
+        '</div>';
+
+      elements.selectionRows.innerHTML =
+        '<div class="accordion-list">' +
+        renderConnectionDetails("Outgoing connections", outgoing, "to") +
+        renderConnectionDetails("Incoming connections", incoming, "from") +
+        '</div>';
+    }
+
     function renderVisualization() {
       if (state.viewMode === "pie") {
         renderPieChart();
+        return;
+      }
+      if (state.viewMode === "connections") {
+        renderConnectionsGraph();
         return;
       }
       renderMindMap();
@@ -775,6 +991,7 @@
       const svg = elements.mindmap;
       svg.replaceChildren();
       elements.pieChart.innerHTML = "";
+      elements.connectionsGraph.replaceChildren();
 
       if (!state.graph || !state.graph.nodes.length) {
         setCanvasVisibility(false, "mindmap");
@@ -849,6 +1066,7 @@
       const chart = state.pieChart;
       container.replaceChildren();
       elements.mindmap.replaceChildren();
+      elements.connectionsGraph.replaceChildren();
 
       if (!chart || !chart.segments.length) {
         setCanvasVisibility(false, "pie");
@@ -968,9 +1186,82 @@
       setCanvasVisibility(true, "pie");
     }
 
+    function renderConnectionsGraph() {
+      const svg = elements.connectionsGraph;
+      svg.replaceChildren();
+      elements.mindmap.replaceChildren();
+      elements.pieChart.innerHTML = "";
+
+      if (!state.connectionsGraph || !state.connectionsGraph.nodes.length) {
+        setCanvasVisibility(false, "connections");
+        return;
+      }
+
+      const graph = state.connectionsGraph;
+      svg.setAttribute("viewBox", "0 0 " + graph.width + " " + graph.height);
+      svg.setAttribute("width", String(graph.width));
+      svg.setAttribute("height", String(graph.height));
+
+      const edgeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      graph.edges.forEach((edge) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const isSelected = state.selectedConnectionNodeId && (
+          edge.from.id === state.selectedConnectionNodeId || edge.to.id === state.selectedConnectionNodeId
+        );
+        path.setAttribute("d", buildConnectionPath(edge.from, edge.to, graph.centerX, graph.centerY));
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", isSelected ? "#2563eb" : "#bfd0ea");
+        path.setAttribute("stroke-width", isSelected ? "2.4" : "1.4");
+        path.setAttribute("opacity", isSelected || !state.selectedConnectionNodeId ? "0.95" : "0.35");
+        edgeGroup.appendChild(path);
+      });
+      svg.appendChild(edgeGroup);
+
+      const nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      graph.nodes.forEach((node) => {
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.style.cursor = "pointer";
+        group.addEventListener("click", () => {
+          state.selectedConnectionNodeId = node.id;
+          renderConnectionsGraph();
+          renderSelection();
+        });
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", String(node.x));
+        circle.setAttribute("cy", String(node.y));
+        circle.setAttribute("r", state.selectedConnectionNodeId === node.id ? "12" : "9");
+        circle.setAttribute("fill", "#ffffff");
+        circle.setAttribute("stroke", state.selectedConnectionNodeId === node.id ? "#2563eb" : "#7c93bf");
+        circle.setAttribute("stroke-width", state.selectedConnectionNodeId === node.id ? "3" : "2");
+        group.appendChild(circle);
+
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", String(node.labelX));
+        label.setAttribute("y", String(node.labelY - (((node.labelLines.length - 1) * 15) / 2)));
+        label.setAttribute("font-size", "13");
+        label.setAttribute("font-weight", "600");
+        label.setAttribute("fill", "#102033");
+        label.setAttribute("text-anchor", node.labelAnchor);
+        node.labelLines.forEach((line, index) => {
+          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          tspan.setAttribute("x", String(node.labelX));
+          tspan.setAttribute("dy", index === 0 ? "0" : "15");
+          tspan.textContent = line;
+          label.appendChild(tspan);
+        });
+        group.appendChild(label);
+
+        nodeGroup.appendChild(group);
+      });
+      svg.appendChild(nodeGroup);
+      setCanvasVisibility(true, "connections");
+    }
+
     function setCanvasVisibility(hasContent, mode) {
       const showMindMap = hasContent && mode === "mindmap";
       const showPie = hasContent && mode === "pie";
+      const showConnections = hasContent && mode === "connections";
 
       if (showMindMap) {
         elements.mindmap.removeAttribute("hidden");
@@ -986,6 +1277,14 @@
       } else {
         elements.pieChart.setAttribute("hidden", "");
         elements.pieChart.style.display = "none";
+      }
+
+      if (showConnections) {
+        elements.connectionsGraph.removeAttribute("hidden");
+        elements.connectionsGraph.style.display = "block";
+      } else {
+        elements.connectionsGraph.setAttribute("hidden", "");
+        elements.connectionsGraph.style.display = "none";
       }
 
       if (hasContent) {
@@ -1135,6 +1434,18 @@
       return parseWorksheetAsJson(worksheetXml, sharedStrings);
     }
 
+    async function extractConnectionsRows(zipEntries, targetSheetName) {
+      const workbookXml = await readXmlText(zipEntries, "xl/workbook.xml");
+      const relsXml = await readXmlText(zipEntries, "xl/_rels/workbook.xml.rels");
+      const sharedStringsXml = zipEntries.has("xl/sharedStrings.xml")
+        ? await readXmlText(zipEntries, "xl/sharedStrings.xml")
+        : null;
+      const sharedStrings = sharedStringsXml ? parseSharedStrings(sharedStringsXml) : [];
+      const sheetPath = resolveSheetPath(workbookXml, relsXml, targetSheetName);
+      const worksheetXml = await readXmlText(zipEntries, sheetPath);
+      return parseConnectionsWorksheetAsJson(worksheetXml, sharedStrings);
+    }
+
     function resolveSheetPath(workbookXml, relsXml, targetSheetName) {
       const workbookDoc = parseXml(workbookXml, "workbook.xml");
       const relsDoc = parseXml(relsXml, "workbook.xml.rels");
@@ -1169,13 +1480,34 @@
     }
 
     function parseWorksheetAsJson(worksheetXml, sharedStrings) {
+      const matrix = parseWorksheetMatrix(worksheetXml, sharedStrings);
+      const headerRow = matrix.find((row) => row.some(Boolean));
+      if (!headerRow) {
+        return [];
+      }
+
+      return mapMatrixToObjects(matrix, headerRow, true);
+    }
+
+    function parseConnectionsWorksheetAsJson(worksheetXml, sharedStrings) {
+      const matrix = parseWorksheetMatrix(worksheetXml, sharedStrings);
+      const headerRow = matrix.find((row) => CONNECTION_FIELDS.every((field, index) => normalizeValue(row[index]) === field));
+      if (!headerRow) {
+        return [];
+      }
+
+      return mapMatrixToObjects(matrix, headerRow, false)
+        .filter((row) => normalizeValue(row.Actor) && normalizeValue(row["Connected To"]));
+    }
+
+    function parseWorksheetMatrix(worksheetXml, sharedStrings) {
       const doc = parseXml(worksheetXml, "worksheet.xml");
       const rowNodes = Array.from(doc.getElementsByTagNameNS("*", "row"));
       if (!rowNodes.length) {
         return [];
       }
 
-      const matrix = rowNodes.map((rowNode) => {
+      return rowNodes.map((rowNode) => {
         const values = [];
         let sequentialIndex = 0;
         Array.from(rowNode.getElementsByTagNameNS("*", "c")).forEach((cell) => {
@@ -1186,12 +1518,9 @@
         });
         return values.map((value) => normalizeValue(value));
       });
+    }
 
-      const headerRow = matrix.find((row) => row.some(Boolean));
-      if (!headerRow) {
-        return [];
-      }
-
+    function mapMatrixToObjects(matrix, headerRow, expandRows) {
       const headers = headerRow.map((header) => normalizeValue(header));
       const headerRowIndex = matrix.indexOf(headerRow);
       const rows = [];
@@ -1211,7 +1540,11 @@
           }
         });
         if (hasValue) {
-          rows.push.apply(rows, expandDelimitedRows(item));
+          if (expandRows) {
+            rows.push.apply(rows, expandDelimitedRows(item));
+          } else {
+            rows.push(item);
+          }
         }
       }
 
@@ -1569,6 +1902,19 @@
     }
 
     function updateEmptyState() {
+      if (state.viewMode === "connections") {
+        if (!state.connectionRows.length) {
+          elements.emptyStateTitle.textContent = "No connections available";
+          elements.emptyStateMessage.textContent = "The workbook does not contain any connection rows in the Connections sheet.";
+          return;
+        }
+        if (!state.connectionsGraph || !state.connectionsGraph.nodes.length) {
+          elements.emptyStateTitle.textContent = "No connections graph available";
+          elements.emptyStateMessage.textContent = "The Connections sheet does not contain any graphable relations.";
+          return;
+        }
+      }
+
       if (!state.allRows.length) {
         elements.emptyStateTitle.textContent = "No workbook loaded yet";
         elements.emptyStateMessage.innerHTML =
@@ -1594,12 +1940,16 @@
       const graph = state.rows.length ? buildMindMap(state.rows) : null;
       state.graph = graph && graph.nodes.length ? graph : null;
       state.pieChart = state.rows.length ? buildPieChart(state.rows, state.pieField) : null;
+      state.connectionsGraph = state.connectionRows.length ? buildConnectionsGraph(state.connectionRows) : null;
 
       if (!state.graph || !state.graph.nodeById.has(state.selectedNodeId)) {
         state.selectedNodeId = state.graph && state.graph.nodes.length ? state.graph.nodes[0].id : null;
       }
       if (!state.pieChart || !state.pieChart.segments.some((segment) => segment.key === state.selectedPieSegmentKey)) {
         state.selectedPieSegmentKey = state.pieChart && state.pieChart.segments.length ? state.pieChart.segments[0].key : null;
+      }
+      if (!state.connectionsGraph || !state.connectionsGraph.nodeById.has(state.selectedConnectionNodeId)) {
+        state.selectedConnectionNodeId = state.connectionsGraph && state.connectionsGraph.nodes.length ? state.connectionsGraph.nodes[0].id : null;
       }
 
       updateTabState();
@@ -1624,14 +1974,22 @@
 
     function updateTabState() {
       const isPie = state.viewMode === "pie";
-      elements.mindmapTab.classList.toggle("active", !isPie);
+      const isConnections = state.viewMode === "connections";
+      elements.mindmapTab.classList.toggle("active", !isPie && !isConnections);
       elements.pieTab.classList.toggle("active", isPie);
-      elements.mindmapTab.setAttribute("aria-selected", isPie ? "false" : "true");
+      elements.connectionsTab.classList.toggle("active", isConnections);
+      elements.mindmapTab.setAttribute("aria-selected", isPie || isConnections ? "false" : "true");
       elements.pieTab.setAttribute("aria-selected", isPie ? "true" : "false");
+      elements.connectionsTab.setAttribute("aria-selected", isConnections ? "true" : "false");
       if (isPie) {
         elements.pieOptions.removeAttribute("hidden");
       } else {
         elements.pieOptions.setAttribute("hidden", "");
+      }
+      if (state.allRows.length && !isConnections) {
+        elements.filterBar.removeAttribute("hidden");
+      } else {
+        elements.filterBar.setAttribute("hidden", "");
       }
       elements.pieFieldSelect.value = state.pieField;
     }
@@ -1682,6 +2040,100 @@
       ].join(" ");
     }
 
+    function buildConnectionsGraph(rows) {
+      const nodeMap = new Map();
+      const edges = [];
+
+      rows.forEach((row, index) => {
+        const actor = normalizeValue(row.Actor);
+        const connectedTo = normalizeValue(row["Connected To"]);
+        const reason = normalizeValue(row.Reason);
+        if (!actor || !connectedTo) {
+          return;
+        }
+
+        const from = getOrCreateNode(actor);
+        const to = getOrCreateNode(connectedTo);
+        edges.push({ id: "connection-" + index, from, to, reason });
+      });
+
+      const nodes = Array.from(nodeMap.values()).sort((left, right) => left.label.localeCompare(right.label));
+      if (!nodes.length) {
+        return null;
+      }
+
+      const width = 1100;
+      const height = 1100;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = 400;
+      const labelRadius = radius + 26;
+
+      nodes.forEach((node, index) => {
+        const angle = (-Math.PI / 2) + ((index / nodes.length) * Math.PI * 2);
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        node.x = centerX + (cos * radius);
+        node.y = centerY + (sin * radius);
+        node.labelLines = wrapLabel(node.label, 18);
+        node.labelX = centerX + (cos * labelRadius);
+        node.labelY = centerY + (sin * labelRadius);
+        node.labelAnchor = cos > 0.35 ? "start" : cos < -0.35 ? "end" : "middle";
+        node.labelZone = Math.abs(cos) < 0.45 ? (sin < 0 ? "top" : "bottom") : "side";
+      });
+
+      applyConnectionLabelOffsets(nodes);
+
+      const nodeById = new Map(nodes.map((node) => [node.id, node]));
+      return { nodes, edges, nodeById, width, height, centerX, centerY };
+
+      function getOrCreateNode(label) {
+        const key = normalizeGroupKey(label);
+        if (!nodeMap.has(key)) {
+          nodeMap.set(key, { id: "connection-node-" + key, key, label });
+        }
+        return nodeMap.get(key);
+      }
+    }
+
+    function applyConnectionLabelOffsets(nodes) {
+      applyBand(nodes.filter((node) => node.labelZone === "top").sort((left, right) => left.labelX - right.labelX), -1);
+      applyBand(nodes.filter((node) => node.labelZone === "bottom").sort((left, right) => left.labelX - right.labelX), 1);
+
+      function applyBand(group, direction) {
+        group.forEach((node, index) => {
+          const lineAdjustment = (node.labelLines.length - 1) * 5;
+          node.labelY += direction * ((index % 2) * (18 + lineAdjustment));
+        });
+      }
+    }
+
+    function buildConnectionPath(fromNode, toNode, centerX, centerY) {
+      return [
+        "M", fromNode.x, fromNode.y,
+        "Q", centerX, centerY,
+        toNode.x, toNode.y
+      ].join(" ");
+    }
+
+    function renderConnectionDetails(title, edges, counterpartKey) {
+      if (!edges.length) {
+        return '<details open><summary>' + escapeHtml(title) + '</summary><p>No connections in this direction.</p></details>';
+      }
+
+      const items = edges
+        .slice()
+        .sort((left, right) => left[counterpartKey].label.localeCompare(right[counterpartKey].label))
+        .map((edge) => (
+          '<li><strong>' + escapeHtml(edge[counterpartKey].label) + ':</strong> ' +
+          escapeHtml(edge.reason || "No reason provided.") +
+          '</li>'
+        ))
+        .join("");
+
+      return '<details open><summary>' + escapeHtml(title) + '</summary><ul class="details-list">' + items + '</ul></details>';
+    }
+
     function decodeZipString(bytes) {
       return new TextDecoder("utf-8").decode(bytes);
     }
@@ -1711,4 +2163,5 @@
     }
   </script>
 </body>
+
 </html>
