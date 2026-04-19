@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Actorenlijst Belgie Mind Map</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --border: #ced8ea;
+      --text: #1d2a3b;
+      --muted: #607089;
+      --accent: #2563eb;
+      --success: #15803d;
+      --danger: #b91c1c;
+      --root: #1d4ed8;
+      --stakeholder: #0f766e;
+      --actor-type: #7c3aed;
+      --actor: #b45309;
+      --description: #6b7280;
+      --shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar, .main { padding: 20px; }
+
+    .sidebar {
+      background: rgba(255, 255, 255, 0.9);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(14px);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 1.5rem; margin-bottom: 8px; }
+    h2 { font-size: 1rem; margin-bottom: 12px; }
+
+    .muted { color: var(--muted); line-height: 1.5; }
+    .controls { display: grid; gap: 12px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 120ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: #abc0e8;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08);
+    }
+
+    button:disabled { cursor: not-allowed; opacity: 0.5; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+
+    .status {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #eef3fb;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .status.success { background: #ecfdf3; border-color: #bbf7d0; color: var(--success); }
+    .status.error { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: #eef3fb;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .stat-card strong { display: block; font-size: 1.4rem; margin-top: 6px; }
+    details summary { cursor: pointer; font-weight: 600; margin-bottom: 10px; }
+
+    pre {
+      margin: 0;
+      max-height: 280px;
+      overflow: auto;
+      padding: 12px;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .legend { display: grid; gap: 8px; }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .swatch { width: 14px; height: 14px; border-radius: 999px; flex: none; }
+    .main { display: flex; flex-direction: column; gap: 16px; }
+
+    .canvas-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 720px;
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 34%),
+        linear-gradient(180deg, #ffffff, #f8fbff);
+      box-shadow: var(--shadow);
+    }
+
+    svg { display: block; min-width: 100%; }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 680px;
+      text-align: center;
+      color: var(--muted);
+      padding: 32px;
+    }
+
+    .node { cursor: pointer; }
+    .node rect { stroke-width: 1.5; filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.08)); }
+    .node text { fill: #102033; font-size: 13px; font-weight: 600; pointer-events: none; }
+    .node .meta { fill: #5b6b83; font-size: 11px; font-weight: 500; }
+    .node.selected rect { stroke: #111827; stroke-width: 2.5; }
+    .edge { fill: none; stroke: #9bb0d9; stroke-width: 2; opacity: 0.9; }
+    .node-root rect { fill: #dbeafe; stroke: var(--root); }
+    .node-type-belanghebbende rect { fill: #ccfbf1; stroke: var(--stakeholder); }
+    .node-type-actor rect { fill: #ede9fe; stroke: var(--actor-type); }
+    .node-actor rect { fill: #ffedd5; stroke: var(--actor); }
+    .node-omschrijving rect { fill: #f3f4f6; stroke: var(--description); }
+
+    .details-list { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.5; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #eef3fb;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    code { font-family: Consolas, "Courier New", monospace; font-size: 0.92em; }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+      .canvas-wrap { min-height: 560px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <section class="panel">
+        <h1>Actorenlijst Belgie mind map</h1>
+        <p class="muted">
+          Load an <code>.xlsx</code> workbook, convert the <code>Actorenlijst België</code> sheet to JSON rows in the browser,
+          and render the relationships as a mind map.
+        </p>
+      </section>
+
+      <section class="panel controls">
+        <div>
+          <label for="workbookInput">Excel workbook</label>
+          <input id="workbookInput" type="file" accept=".xlsx,.xlsm,.xltx,.xltm" />
+        </div>
+        <div class="button-row">
+          <button id="loadRepositoryWorkbook" class="primary" type="button">Try loading input workbook</button>
+          <button id="downloadJson" type="button" disabled>Download JSON</button>
+        </div>
+        <div id="statusMessage" class="status">Select <code>input\Inventarisatie.xlsx</code>, or use the load button if this page is served from the repository.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Stats</h2>
+        <div class="stats">
+          <div class="stat-card">Rows<strong id="rowsCount">0</strong></div>
+          <div class="stat-card">Nodes<strong id="nodesCount">0</strong></div>
+          <div class="stat-card">Connections<strong id="edgesCount">0</strong></div>
+          <div class="stat-card">Max depth<strong id="depthCount">0</strong></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Legend</h2>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch" style="background:#dbeafe;"></span>Root</div>
+          <div class="legend-item"><span class="swatch" style="background:#ccfbf1;"></span>Type belanghebbende</div>
+          <div class="legend-item"><span class="swatch" style="background:#ede9fe;"></span>Type actor</div>
+          <div class="legend-item"><span class="swatch" style="background:#ffedd5;"></span>Actor</div>
+          <div class="legend-item"><span class="swatch" style="background:#f3f4f6;"></span>Omschrijving</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Selection</h2>
+        <div id="selectionInfo" class="muted">Click a node in the mind map to inspect the related rows.</div>
+        <div id="selectionRows"></div>
+      </section>
+
+      <section class="panel">
+        <details>
+          <summary>JSON preview</summary>
+          <pre id="jsonPreview">[]</pre>
+        </details>
+      </section>
+    </aside>
+
+    <main class="main">
+      <section class="panel canvas-toolbar">
+        <div>
+          <h2 style="margin-bottom:6px;">Visualization</h2>
+          <div class="muted">
+            The chain uses the next available non-empty field in this order:
+            <code>Type belanghebbende -&gt; Type actor -&gt; Actor -&gt; Omschrijving</code>.
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="fitView" type="button" disabled>Fit view</button>
+        </div>
+      </section>
+
+      <section class="canvas-wrap">
+        <div id="emptyState" class="empty-state">
+          <div>
+            <h2>No workbook loaded yet</h2>
+            <p class="muted">
+              After loading the workbook, this page will generate JSON rows and render the mind map from the
+              <code>Actorenlijst België</code> sheet.
+            </p>
+          </div>
+        </div>
+        <svg id="mindmap" xmlns="http://www.w3.org/2000/svg" hidden></svg>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const TARGET_SHEET_NAME = "Actorenlijst België";
+    const ROOT_LABEL = "Actorenlijst België";
+    const FIELD_SEQUENCE = [
+      { key: "Type belanghebbende", kind: "type-belanghebbende", maxChars: 22 },
+      { key: "Type actor", kind: "type-actor", maxChars: 22 },
+      { key: "Actor", kind: "actor", maxChars: 28 },
+      { key: "Omschrijving", kind: "omschrijving", maxChars: 42 }
+    ];
+    const WIDTH_BY_KIND = {
+      root: 220,
+      "type-belanghebbende": 220,
+      "type-actor": 220,
+      actor: 270,
+      omschrijving: 360
+    };
+    const HEIGHT_PER_LINE = 18;
+    const BOX_BASE_HEIGHT = 34;
+    const COLUMN_GAP = 290;
+    const ROW_GAP = 26;
+    const PADDING_X = 48;
+    const PADDING_Y = 42;
+
+    const elements = {
+      workbookInput: document.getElementById("workbookInput"),
+      loadRepositoryWorkbook: document.getElementById("loadRepositoryWorkbook"),
+      downloadJson: document.getElementById("downloadJson"),
+      fitView: document.getElementById("fitView"),
+      statusMessage: document.getElementById("statusMessage"),
+      rowsCount: document.getElementById("rowsCount"),
+      nodesCount: document.getElementById("nodesCount"),
+      edgesCount: document.getElementById("edgesCount"),
+      depthCount: document.getElementById("depthCount"),
+      jsonPreview: document.getElementById("jsonPreview"),
+      selectionInfo: document.getElementById("selectionInfo"),
+      selectionRows: document.getElementById("selectionRows"),
+      emptyState: document.getElementById("emptyState"),
+      mindmap: document.getElementById("mindmap")
+    };
+
+    const state = {
+      rows: [],
+      graph: null,
+      selectedNodeId: null
+    };
+
+    elements.workbookInput.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        return;
+      }
+      await loadWorkbookFromFile(file);
+    });
+
+    elements.loadRepositoryWorkbook.addEventListener("click", async () => {
+      try {
+        setStatus("Loading ../input/Inventarisatie.xlsx ...");
+        const response = await fetch("../input/Inventarisatie.xlsx");
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status + " while requesting ../input/Inventarisatie.xlsx");
+        }
+        const buffer = await response.arrayBuffer();
+        await loadWorkbookFromBuffer(buffer, "Inventarisatie.xlsx");
+      } catch (error) {
+        setError("Could not load ../input/Inventarisatie.xlsx automatically. Use the file picker instead. " + error.message);
+      }
+    });
+
+    elements.downloadJson.addEventListener("click", () => {
+      if (!state.rows.length) {
+        return;
+      }
+      const blob = new Blob([JSON.stringify(state.rows, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "actorenlijst_belgie.json";
+      anchor.click();
+      URL.revokeObjectURL(url);
+    });
+
+    elements.fitView.addEventListener("click", () => {
+      const wrap = elements.mindmap.parentElement;
+      wrap.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("autoload") === "1") {
+      elements.loadRepositoryWorkbook.click();
+    }
+
+    async function loadWorkbookFromFile(file) {
+      setStatus("Reading " + file.name + " ...");
+      const buffer = await file.arrayBuffer();
+      await loadWorkbookFromBuffer(buffer, file.name);
+    }
+
+    async function loadWorkbookFromBuffer(buffer, sourceLabel) {
+      try {
+        const zipEntries = await readZipEntries(buffer);
+        const rows = await extractSheetRows(zipEntries, TARGET_SHEET_NAME);
+        if (!rows.length) {
+          throw new Error("No non-empty data rows were found in the target sheet.");
+        }
+        state.rows = rows;
+        state.graph = buildMindMap(rows);
+        state.selectedNodeId = state.graph.nodes.length ? state.graph.nodes[0].id : null;
+        updateStats();
+        updateJsonPreview();
+        renderMindMap();
+        renderSelection();
+        setSuccess("Loaded " + sourceLabel + " with " + rows.length + " JSON row(s) from " + TARGET_SHEET_NAME + ".");
+      } catch (error) {
+        state.rows = [];
+        state.graph = null;
+        state.selectedNodeId = null;
+        updateStats();
+        updateJsonPreview();
+        renderMindMap();
+        renderSelection();
+        setError(error.message);
+      }
+    }
+
+    function updateStats() {
+      const graph = state.graph;
+      elements.rowsCount.textContent = String(state.rows.length);
+      elements.nodesCount.textContent = graph ? String(graph.nodes.length) : "0";
+      elements.edgesCount.textContent = graph ? String(graph.edges.length) : "0";
+      elements.depthCount.textContent = graph ? String(graph.maxDepth) : "0";
+      elements.downloadJson.disabled = !state.rows.length;
+      elements.fitView.disabled = !graph;
+    }
+
+    function updateJsonPreview() {
+      elements.jsonPreview.textContent = JSON.stringify(state.rows.slice(0, 8), null, 2);
+    }
+
+    function renderSelection() {
+      if (!state.graph || !state.graph.nodeById.has(state.selectedNodeId)) {
+        elements.selectionInfo.textContent = "Click a node in the mind map to inspect the related rows.";
+        elements.selectionRows.innerHTML = "";
+        return;
+      }
+
+      const node = state.graph.nodeById.get(state.selectedNodeId);
+      const rowIndexes = Array.from(node.rowIndexes).sort((left, right) => left - right);
+      const rows = rowIndexes.slice(0, 5).map((rowIndex) => state.rows[rowIndex]);
+      const pills = [
+        '<span class="pill">Type: ' + escapeHtml(node.kind) + '</span>',
+        '<span class="pill">Rows: ' + rowIndexes.length + '</span>',
+        '<span class="pill">Depth: ' + node.depth + '</span>'
+      ].join("");
+
+      elements.selectionInfo.innerHTML =
+        '<h3 style="margin-bottom:8px;">' + escapeHtml(node.label) + '</h3>' +
+        '<div>' + pills + '</div>';
+
+      const list = rows.map((row) => {
+        const values = FIELD_SEQUENCE.map((field) => {
+          const value = row[field.key] || "";
+          if (!value) {
+            return "";
+          }
+          return '<li><strong>' + escapeHtml(field.key) + ':</strong> ' + escapeHtml(value) + '</li>';
+        }).filter(Boolean).join("");
+        return '<li><ul class="details-list">' + values + '</ul></li>';
+      }).join("");
+
+      const moreRows = rowIndexes.length > rows.length
+        ? '<p class="muted" style="margin-top:12px;">Showing ' + rows.length + ' of ' + rowIndexes.length + ' related row(s).</p>'
+        : "";
+
+      elements.selectionRows.innerHTML =
+        '<ol class="details-list" style="padding-left:18px;">' + list + '</ol>' + moreRows;
+    }
+
+    function renderMindMap() {
+      const svg = elements.mindmap;
+      svg.replaceChildren();
+
+      if (!state.graph) {
+        svg.hidden = true;
+        elements.emptyState.hidden = false;
+        return;
+      }
+
+      const graph = state.graph;
+      svg.setAttribute("viewBox", "0 0 " + graph.width + " " + graph.height);
+      svg.setAttribute("width", String(graph.width));
+      svg.setAttribute("height", String(graph.height));
+
+      const edgeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      graph.edges.forEach((edge) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("class", "edge");
+        path.setAttribute("d", buildEdgePath(edge.from, edge.to));
+        edgeGroup.appendChild(path);
+      });
+
+      const nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      graph.nodes.forEach((node) => {
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const classNames = ["node", "node-" + node.kind];
+        if (node.id === state.selectedNodeId) {
+          classNames.push("selected");
+        }
+        group.setAttribute("class", classNames.join(" "));
+        group.addEventListener("click", () => {
+          state.selectedNodeId = node.id;
+          renderMindMap();
+          renderSelection();
+        });
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", String(node.x));
+        rect.setAttribute("y", String(node.y));
+        rect.setAttribute("width", String(node.width));
+        rect.setAttribute("height", String(node.height));
+        rect.setAttribute("rx", "14");
+        rect.setAttribute("ry", "14");
+        group.appendChild(rect);
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", String(node.x + 14));
+        text.setAttribute("y", String(node.y + 22));
+        node.lines.forEach((line, index) => {
+          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          tspan.setAttribute("x", String(node.x + 14));
+          tspan.setAttribute("dy", index === 0 ? "0" : String(HEIGHT_PER_LINE));
+          tspan.textContent = line;
+          text.appendChild(tspan);
+        });
+        group.appendChild(text);
+
+        const meta = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        meta.setAttribute("class", "meta");
+        meta.setAttribute("x", String(node.x + 14));
+        meta.setAttribute("y", String(node.y + node.height - 12));
+        meta.textContent = node.rowIndexes.size + " row(s)";
+        group.appendChild(meta);
+
+        nodeGroup.appendChild(group);
+      });
+
+      svg.appendChild(edgeGroup);
+      svg.appendChild(nodeGroup);
+      svg.hidden = false;
+      elements.emptyState.hidden = true;
+    }
+
+    function buildEdgePath(fromNode, toNode) {
+      const startX = fromNode.x + fromNode.width;
+      const startY = fromNode.y + (fromNode.height / 2);
+      const endX = toNode.x;
+      const endY = toNode.y + (toNode.height / 2);
+      const curve = Math.max(40, (endX - startX) / 2);
+      return [
+        "M", startX, startY,
+        "C", startX + curve, startY,
+        endX - curve, endY,
+        endX, endY
+      ].join(" ");
+    }
+
+    function buildMindMap(rows) {
+      let nextId = 0;
+      const root = createTreeNode("root", ROOT_LABEL);
+
+      rows.forEach((row, rowIndex) => {
+        const path = FIELD_SEQUENCE.map((field) => ({
+          kind: field.kind,
+          label: normalizeValue(row[field.key])
+        })).filter((segment) => segment.label);
+
+        if (!path.length) {
+          return;
+        }
+
+        root.rowIndexes.add(rowIndex);
+        let current = root;
+        path.forEach((segment) => {
+          const key = segment.kind + "::" + segment.label;
+          if (!current.children.has(key)) {
+            current.children.set(key, createTreeNode(segment.kind, segment.label));
+          }
+          current = current.children.get(key);
+          current.rowIndexes.add(rowIndex);
+        });
+      });
+
+      annotateNode(root, 0);
+      layoutTree(root, 0, PADDING_Y);
+
+      const nodes = [];
+      const edges = [];
+      const nodeById = new Map();
+      collectGraph(root);
+
+      const width = Math.max.apply(null, nodes.map((node) => node.x + node.width).concat([600])) + PADDING_X;
+      const height = Math.max.apply(null, nodes.map((node) => node.y + node.height).concat([300])) + PADDING_Y;
+      const maxDepth = Math.max.apply(null, nodes.map((node) => node.depth).concat([0]));
+
+      return { root, nodes, edges, nodeById, width, height, maxDepth };
+
+      function createTreeNode(kind, label) {
+        return {
+          id: "node-" + (nextId += 1),
+          kind: kind,
+          label: label,
+          children: new Map(),
+          rowIndexes: new Set(),
+          width: 0,
+          height: 0,
+          x: 0,
+          y: 0,
+          depth: 0,
+          lines: []
+        };
+      }
+
+      function annotateNode(node, depth) {
+        node.depth = depth;
+        node.lines = wrapLabel(node.label, getMaxChars(node.kind));
+        node.width = WIDTH_BY_KIND[node.kind] || 240;
+        node.height = BOX_BASE_HEIGHT + (node.lines.length * HEIGHT_PER_LINE);
+        const children = Array.from(node.children.values()).sort((left, right) => left.label.localeCompare(right.label));
+        node.children = new Map(children.map((child) => [child.kind + "::" + child.label, child]));
+        children.forEach((child) => annotateNode(child, depth + 1));
+      }
+
+      function layoutTree(node, depth, startY) {
+        node.x = PADDING_X + (depth * COLUMN_GAP);
+        const children = Array.from(node.children.values());
+        if (!children.length) {
+          node.y = startY;
+          return startY + node.height + ROW_GAP;
+        }
+
+        let currentY = startY;
+        children.forEach((child) => {
+          currentY = layoutTree(child, depth + 1, currentY);
+        });
+
+        const first = children[0];
+        const last = children[children.length - 1];
+        const centerY = ((first.y + (first.height / 2)) + (last.y + (last.height / 2))) / 2;
+        node.y = centerY - (node.height / 2);
+        return Math.max(currentY, node.y + node.height + ROW_GAP);
+      }
+
+      function collectGraph(node) {
+        nodes.push(node);
+        nodeById.set(node.id, node);
+        node.children.forEach((child) => {
+          edges.push({ from: node, to: child });
+          collectGraph(child);
+        });
+      }
+
+      function getMaxChars(kind) {
+        const field = FIELD_SEQUENCE.find((entry) => entry.kind === kind);
+        return field ? field.maxChars : 22;
+      }
+    }
+
+    async function extractSheetRows(zipEntries, targetSheetName) {
+      const workbookXml = await readXmlText(zipEntries, "xl/workbook.xml");
+      const relsXml = await readXmlText(zipEntries, "xl/_rels/workbook.xml.rels");
+      const sharedStringsXml = zipEntries.has("xl/sharedStrings.xml")
+        ? await readXmlText(zipEntries, "xl/sharedStrings.xml")
+        : null;
+      const sharedStrings = sharedStringsXml ? parseSharedStrings(sharedStringsXml) : [];
+      const sheetPath = resolveSheetPath(workbookXml, relsXml, targetSheetName);
+      const worksheetXml = await readXmlText(zipEntries, sheetPath);
+      return parseWorksheetAsJson(worksheetXml, sharedStrings);
+    }
+
+    function resolveSheetPath(workbookXml, relsXml, targetSheetName) {
+      const workbookDoc = parseXml(workbookXml, "workbook.xml");
+      const relsDoc = parseXml(relsXml, "workbook.xml.rels");
+      const relationshipMap = new Map();
+
+      Array.from(relsDoc.getElementsByTagNameNS("*", "Relationship")).forEach((relationship) => {
+        relationshipMap.set(relationship.getAttribute("Id"), relationship.getAttribute("Target"));
+      });
+
+      const sheets = Array.from(workbookDoc.getElementsByTagNameNS("*", "sheet"));
+      for (const sheet of sheets) {
+        if (sheet.getAttribute("name") !== targetSheetName) {
+          continue;
+        }
+        const relationshipId = sheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+        const target = relationshipMap.get(relationshipId);
+        if (!target) {
+          throw new Error("Could not resolve the XML file for " + targetSheetName + ".");
+        }
+        if (target.startsWith("/")) {
+          return normalizeZipPath(target);
+        }
+        return normalizeZipPath("xl/" + target);
+      }
+
+      throw new Error('Sheet "' + targetSheetName + '" was not found in the workbook.');
+    }
+
+    function parseSharedStrings(xmlText) {
+      const doc = parseXml(xmlText, "sharedStrings.xml");
+      return Array.from(doc.getElementsByTagNameNS("*", "si")).map((node) => readCellText(node));
+    }
+
+    function parseWorksheetAsJson(worksheetXml, sharedStrings) {
+      const doc = parseXml(worksheetXml, "worksheet.xml");
+      const rowNodes = Array.from(doc.getElementsByTagNameNS("*", "row"));
+      if (!rowNodes.length) {
+        return [];
+      }
+
+      const matrix = rowNodes.map((rowNode) => {
+        const values = [];
+        let sequentialIndex = 0;
+        Array.from(rowNode.getElementsByTagNameNS("*", "c")).forEach((cell) => {
+          const ref = cell.getAttribute("r");
+          const columnIndex = ref ? columnIndexFromCellRef(ref) : sequentialIndex;
+          values[columnIndex] = getCellValue(cell, sharedStrings);
+          sequentialIndex = columnIndex + 1;
+        });
+        return values.map((value) => normalizeValue(value));
+      });
+
+      const headerRow = matrix.find((row) => row.some(Boolean));
+      if (!headerRow) {
+        return [];
+      }
+
+      const headers = headerRow.map((header) => normalizeValue(header));
+      const headerRowIndex = matrix.indexOf(headerRow);
+      const rows = [];
+
+      for (let index = headerRowIndex + 1; index < matrix.length; index += 1) {
+        const values = matrix[index];
+        const item = {};
+        let hasValue = false;
+        headers.forEach((header, columnIndex) => {
+          if (!header) {
+            return;
+          }
+          const value = normalizeValue(values[columnIndex]);
+          item[header] = value;
+          if (value) {
+            hasValue = true;
+          }
+        });
+        if (hasValue) {
+          rows.push(item);
+        }
+      }
+
+      return rows;
+    }
+
+    function getCellValue(cell, sharedStrings) {
+      const type = cell.getAttribute("t");
+      if (type === "inlineStr") {
+        const inlineNode = cell.getElementsByTagNameNS("*", "is")[0];
+        return inlineNode ? readCellText(inlineNode) : "";
+      }
+
+      const valueNode = cell.getElementsByTagNameNS("*", "v")[0];
+      if (!valueNode) {
+        return "";
+      }
+
+      const rawValue = valueNode.textContent || "";
+      if (type === "s") {
+        const index = Number(rawValue);
+        return Number.isFinite(index) ? (sharedStrings[index] || "") : "";
+      }
+      if (type === "b") {
+        return rawValue === "1" ? "TRUE" : "FALSE";
+      }
+      return rawValue;
+    }
+
+    function readCellText(node) {
+      const textNodes = Array.from(node.getElementsByTagNameNS("*", "t"));
+      if (!textNodes.length) {
+        return node.textContent || "";
+      }
+      return textNodes.map((textNode) => textNode.textContent || "").join("");
+    }
+
+    async function readXmlText(zipEntries, path) {
+      const normalizedPath = normalizeZipPath(path);
+      if (!zipEntries.has(normalizedPath)) {
+        throw new Error("Workbook entry not found: " + normalizedPath);
+      }
+      const data = await zipEntries.get(normalizedPath);
+      return new TextDecoder("utf-8").decode(data);
+    }
+
+    async function readZipEntries(buffer) {
+      if (typeof DecompressionStream === "undefined") {
+        throw new Error("This browser does not support DecompressionStream, which is required to read .xlsx files.");
+      }
+
+      const bytes = new Uint8Array(buffer);
+      const eocdOffset = findEndOfCentralDirectory(bytes);
+      const view = new DataView(buffer);
+      const totalEntries = view.getUint16(eocdOffset + 10, true);
+      const centralDirectoryOffset = view.getUint32(eocdOffset + 16, true);
+      const entryReaders = new Map();
+      let cursor = centralDirectoryOffset;
+
+      for (let index = 0; index < totalEntries; index += 1) {
+        const signature = view.getUint32(cursor, true);
+        if (signature !== 0x02014b50) {
+          throw new Error("Invalid ZIP central directory entry at offset " + cursor + ".");
+        }
+
+        const compressionMethod = view.getUint16(cursor + 10, true);
+        const compressedSize = view.getUint32(cursor + 20, true);
+        const fileNameLength = view.getUint16(cursor + 28, true);
+        const extraLength = view.getUint16(cursor + 30, true);
+        const commentLength = view.getUint16(cursor + 32, true);
+        const localHeaderOffset = view.getUint32(cursor + 42, true);
+        const fileName = decodeZipString(bytes.subarray(cursor + 46, cursor + 46 + fileNameLength));
+        const normalizedName = normalizeZipPath(fileName);
+
+        entryReaders.set(normalizedName, async () => {
+          const localSignature = view.getUint32(localHeaderOffset, true);
+          if (localSignature !== 0x04034b50) {
+            throw new Error("Invalid ZIP local file header for " + normalizedName + ".");
+          }
+
+          const localFileNameLength = view.getUint16(localHeaderOffset + 26, true);
+          const localExtraLength = view.getUint16(localHeaderOffset + 28, true);
+          const dataStart = localHeaderOffset + 30 + localFileNameLength + localExtraLength;
+          const compressedData = bytes.slice(dataStart, dataStart + compressedSize);
+
+          if (compressionMethod === 0) {
+            return compressedData;
+          }
+          if (compressionMethod === 8) {
+            const stream = new Blob([compressedData]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+            const inflated = await new Response(stream).arrayBuffer();
+            return new Uint8Array(inflated);
+          }
+          throw new Error("Unsupported ZIP compression method " + compressionMethod + " for " + normalizedName + ".");
+        });
+
+        cursor += 46 + fileNameLength + extraLength + commentLength;
+      }
+
+      return {
+        has(path) {
+          return entryReaders.has(normalizeZipPath(path));
+        },
+        async get(path) {
+          const normalizedPath = normalizeZipPath(path);
+          if (!entryReaders.has(normalizedPath)) {
+            throw new Error("ZIP entry not found: " + normalizedPath);
+          }
+          return entryReaders.get(normalizedPath)();
+        }
+      };
+    }
+
+    function findEndOfCentralDirectory(bytes) {
+      const minimumLength = 22;
+      if (bytes.length < minimumLength) {
+        throw new Error("The selected file is too small to be a valid XLSX workbook.");
+      }
+
+      const maxCommentLength = 65535;
+      const start = Math.max(0, bytes.length - minimumLength - maxCommentLength);
+      for (let offset = bytes.length - minimumLength; offset >= start; offset -= 1) {
+        if (
+          bytes[offset] === 0x50 &&
+          bytes[offset + 1] === 0x4b &&
+          bytes[offset + 2] === 0x05 &&
+          bytes[offset + 3] === 0x06
+        ) {
+          return offset;
+        }
+      }
+      throw new Error("Could not locate the ZIP end-of-central-directory record.");
+    }
+
+    function columnIndexFromCellRef(ref) {
+      const match = /^([A-Z]+)\d+$/i.exec(ref);
+      if (!match) {
+        return 0;
+      }
+      const letters = match[1].toUpperCase();
+      let index = 0;
+      for (let position = 0; position < letters.length; position += 1) {
+        index = (index * 26) + (letters.charCodeAt(position) - 64);
+      }
+      return index - 1;
+    }
+
+    function normalizeZipPath(path) {
+      const normalized = String(path || "").replace(/\\/g, "/");
+      const rawSegments = normalized.split("/");
+      const segments = [];
+
+      rawSegments.forEach((segment) => {
+        if (!segment || segment === ".") {
+          return;
+        }
+        if (segment === "..") {
+          segments.pop();
+          return;
+        }
+        segments.push(segment);
+      });
+
+      return segments.join("/");
+    }
+
+    function wrapLabel(label, maxChars) {
+      if (!label) {
+        return [""];
+      }
+
+      const words = label.replace(/\s+/g, " ").trim().split(" ");
+      const lines = [];
+      let current = "";
+
+      words.forEach((word) => {
+        const candidate = current ? current + " " + word : word;
+        if (candidate.length <= maxChars) {
+          current = candidate;
+        } else {
+          if (current) {
+            lines.push(current);
+          }
+          current = word;
+        }
+      });
+
+      if (current) {
+        lines.push(current);
+      }
+
+      return lines.length ? lines : [label];
+    }
+
+    function parseXml(xmlText, label) {
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const parserError = doc.getElementsByTagName("parsererror")[0];
+      if (parserError) {
+        throw new Error("Failed to parse " + label + ".");
+      }
+      return doc;
+    }
+
+    function normalizeValue(value) {
+      return String(value == null ? "" : value).replace(/\r\n/g, "\n").replace(/\u00a0/g, " ").trim();
+    }
+
+    function decodeZipString(bytes) {
+      return new TextDecoder("utf-8").decode(bytes);
+    }
+
+    function setStatus(message) {
+      elements.statusMessage.className = "status";
+      elements.statusMessage.textContent = message;
+    }
+
+    function setSuccess(message) {
+      elements.statusMessage.className = "status success";
+      elements.statusMessage.textContent = message;
+    }
+
+    function setError(message) {
+      elements.statusMessage.className = "status error";
+      elements.statusMessage.textContent = message;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>
