@@ -33,6 +33,8 @@
       color: var(--text);
     }
 
+    [hidden] { display: none !important; }
+
     .app {
       display: grid;
       grid-template-columns: 360px minmax(0, 1fr);
@@ -75,6 +77,15 @@
     }
 
     .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fbfdff;
+      color: var(--text);
+    }
 
     button {
       border: 1px solid var(--border);
@@ -160,6 +171,31 @@
       flex-wrap: wrap;
     }
 
+    .filter-bar {
+      flex-basis: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+      padding-top: 4px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .filter-field label {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
     .canvas-wrap {
       position: relative;
       flex: 1;
@@ -241,7 +277,7 @@
           <button id="loadRepositoryWorkbook" class="primary" type="button">Try loading input workbook</button>
           <button id="downloadJson" type="button" disabled>Download JSON</button>
         </div>
-        <div id="statusMessage" class="status">Select <code>input\Inventarisatie.xlsx</code>, or use the load button if this page is served from the repository.</div>
+        <div id="statusMessage" class="status">Select <code>input/Inventarisatie.xlsx</code>, or use the load button if this page is served from the repository.</div>
       </section>
 
       <section class="panel">
@@ -257,7 +293,6 @@
       <section class="panel">
         <h2>Legend</h2>
         <div class="legend">
-          <div class="legend-item"><span class="swatch" style="background:#dbeafe;"></span>Root</div>
           <div class="legend-item"><span class="swatch" style="background:#ccfbf1;"></span>Type belanghebbende</div>
           <div class="legend-item"><span class="swatch" style="background:#ede9fe;"></span>Type actor</div>
           <div class="legend-item"><span class="swatch" style="background:#ffedd5;"></span>Actor</div>
@@ -287,17 +322,26 @@
             The chain uses the next available non-empty field in this order:
             <code>Type belanghebbende -&gt; Type actor -&gt; Actor -&gt; Omschrijving</code>.
           </div>
+          <div class="muted">
+            Slash-delimited values in <code>Type belanghebbende</code> and <code>Type actor</code> are expanded into separate relationships.
+          </div>
         </div>
         <div class="button-row">
           <button id="fitView" type="button" disabled>Fit view</button>
+        </div>
+        <div id="filterBar" class="filter-bar" hidden>
+          <div id="filtersContainer" class="filter-grid"></div>
+          <div class="filter-actions">
+            <button id="clearFilters" type="button" disabled>Clear filters</button>
+          </div>
         </div>
       </section>
 
       <section class="canvas-wrap">
         <div id="emptyState" class="empty-state">
           <div>
-            <h2>No workbook loaded yet</h2>
-            <p class="muted">
+            <h2 id="emptyStateTitle">No workbook loaded yet</h2>
+            <p id="emptyStateMessage" class="muted">
               After loading the workbook, this page will generate JSON rows and render the mind map from the
               <code>Actorenlijst België</code> sheet.
             </p>
@@ -311,6 +355,8 @@
   <script>
     const TARGET_SHEET_NAME = "Actorenlijst België";
     const ROOT_LABEL = "Actorenlijst België";
+    const REPOSITORY_WORKBOOK_PATH = "input/Inventarisatie.xlsx";
+    const MULTI_VALUE_FIELDS = new Set(["Type belanghebbende", "Type actor"]);
     const FIELD_SEQUENCE = [
       { key: "Type belanghebbende", kind: "type-belanghebbende", maxChars: 22 },
       { key: "Type actor", kind: "type-actor", maxChars: 22 },
@@ -336,6 +382,9 @@
       loadRepositoryWorkbook: document.getElementById("loadRepositoryWorkbook"),
       downloadJson: document.getElementById("downloadJson"),
       fitView: document.getElementById("fitView"),
+      filterBar: document.getElementById("filterBar"),
+      filtersContainer: document.getElementById("filtersContainer"),
+      clearFilters: document.getElementById("clearFilters"),
       statusMessage: document.getElementById("statusMessage"),
       rowsCount: document.getElementById("rowsCount"),
       nodesCount: document.getElementById("nodesCount"),
@@ -345,14 +394,21 @@
       selectionInfo: document.getElementById("selectionInfo"),
       selectionRows: document.getElementById("selectionRows"),
       emptyState: document.getElementById("emptyState"),
+      emptyStateTitle: document.getElementById("emptyStateTitle"),
+      emptyStateMessage: document.getElementById("emptyStateMessage"),
       mindmap: document.getElementById("mindmap")
     };
 
     const state = {
+      allRows: [],
       rows: [],
       graph: null,
-      selectedNodeId: null
+      selectedNodeId: null,
+      filters: createEmptyFilters()
     };
+    const filterSelects = new Map();
+
+    initializeFilterControls();
 
     elements.workbookInput.addEventListener("change", async (event) => {
       const file = event.target.files && event.target.files[0];
@@ -363,16 +419,17 @@
     });
 
     elements.loadRepositoryWorkbook.addEventListener("click", async () => {
+      const workbookUrl = new URL(REPOSITORY_WORKBOOK_PATH, window.location.href);
       try {
-        setStatus("Loading ../input/Inventarisatie.xlsx ...");
-        const response = await fetch("../input/Inventarisatie.xlsx");
+        setStatus("Loading " + workbookUrl.pathname + " ...");
+        const response = await fetch(workbookUrl);
         if (!response.ok) {
-          throw new Error("HTTP " + response.status + " while requesting ../input/Inventarisatie.xlsx");
+          throw new Error("HTTP " + response.status + " while requesting " + workbookUrl.pathname);
         }
         const buffer = await response.arrayBuffer();
         await loadWorkbookFromBuffer(buffer, "Inventarisatie.xlsx");
       } catch (error) {
-        setError("Could not load ../input/Inventarisatie.xlsx automatically. Use the file picker instead. " + error.message);
+        setError("Could not load " + workbookUrl.pathname + " automatically. Use the file picker instead. " + error.message);
       }
     });
 
@@ -412,20 +469,21 @@
         if (!rows.length) {
           throw new Error("No non-empty data rows were found in the target sheet.");
         }
-        state.rows = rows;
-        state.graph = buildMindMap(rows);
-        state.selectedNodeId = state.graph.nodes.length ? state.graph.nodes[0].id : null;
-        updateStats();
-        updateJsonPreview();
-        renderMindMap();
-        renderSelection();
+        state.allRows = rows;
+        resetFilters();
+        renderFilterControls();
+        applyFilters();
         setSuccess("Loaded " + sourceLabel + " with " + rows.length + " JSON row(s) from " + TARGET_SHEET_NAME + ".");
       } catch (error) {
+        state.allRows = [];
         state.rows = [];
         state.graph = null;
         state.selectedNodeId = null;
+        resetFilters();
+        renderFilterControls();
         updateStats();
         updateJsonPreview();
+        updateEmptyState();
         renderMindMap();
         renderSelection();
         setError(error.message);
@@ -434,12 +492,15 @@
 
     function updateStats() {
       const graph = state.graph;
-      elements.rowsCount.textContent = String(state.rows.length);
+      elements.rowsCount.textContent = state.allRows.length && state.rows.length !== state.allRows.length
+        ? state.rows.length + " / " + state.allRows.length
+        : String(state.rows.length);
       elements.nodesCount.textContent = graph ? String(graph.nodes.length) : "0";
       elements.edgesCount.textContent = graph ? String(graph.edges.length) : "0";
       elements.depthCount.textContent = graph ? String(graph.maxDepth) : "0";
       elements.downloadJson.disabled = !state.rows.length;
-      elements.fitView.disabled = !graph;
+      elements.fitView.disabled = !graph || !graph.nodes.length;
+      elements.clearFilters.disabled = !state.allRows.length || !hasActiveFilters();
     }
 
     function updateJsonPreview() {
@@ -489,9 +550,8 @@
       const svg = elements.mindmap;
       svg.replaceChildren();
 
-      if (!state.graph) {
-        svg.hidden = true;
-        elements.emptyState.hidden = false;
+      if (!state.graph || !state.graph.nodes.length) {
+        setCanvasVisibility(false);
         return;
       }
 
@@ -555,8 +615,22 @@
 
       svg.appendChild(edgeGroup);
       svg.appendChild(nodeGroup);
-      svg.hidden = false;
-      elements.emptyState.hidden = true;
+      setCanvasVisibility(true);
+    }
+
+    function setCanvasVisibility(hasGraph) {
+      if (hasGraph) {
+        elements.mindmap.removeAttribute("hidden");
+        elements.mindmap.style.display = "block";
+        elements.emptyState.setAttribute("hidden", "");
+        elements.emptyState.style.display = "none";
+        return;
+      }
+
+      elements.mindmap.setAttribute("hidden", "");
+      elements.mindmap.style.display = "none";
+      elements.emptyState.removeAttribute("hidden");
+      elements.emptyState.style.display = "grid";
     }
 
     function buildEdgePath(fromNode, toNode) {
@@ -590,7 +664,7 @@
         root.rowIndexes.add(rowIndex);
         let current = root;
         path.forEach((segment) => {
-          const key = segment.kind + "::" + segment.label;
+          const key = segment.kind + "::" + normalizeGroupKey(segment.label);
           if (!current.children.has(key)) {
             current.children.set(key, createTreeNode(segment.kind, segment.label));
           }
@@ -599,13 +673,19 @@
         });
       });
 
-      annotateNode(root, 0);
-      layoutTree(root, 0, PADDING_Y);
+      annotateNode(root, -1);
+      layoutTree(root, -1, PADDING_Y);
 
       const nodes = [];
       const edges = [];
       const nodeById = new Map();
-      collectGraph(root);
+      root.children.forEach((child) => {
+        collectGraph(child, null);
+      });
+
+      if (!nodes.length) {
+        return { root, nodes, edges, nodeById, width: 600, height: 300, maxDepth: 0 };
+      }
 
       const width = Math.max.apply(null, nodes.map((node) => node.x + node.width).concat([600])) + PADDING_X;
       const height = Math.max.apply(null, nodes.map((node) => node.y + node.height).concat([300])) + PADDING_Y;
@@ -634,8 +714,10 @@
         node.lines = wrapLabel(node.label, getMaxChars(node.kind));
         node.width = WIDTH_BY_KIND[node.kind] || 240;
         node.height = BOX_BASE_HEIGHT + (node.lines.length * HEIGHT_PER_LINE);
-        const children = Array.from(node.children.values()).sort((left, right) => left.label.localeCompare(right.label));
-        node.children = new Map(children.map((child) => [child.kind + "::" + child.label, child]));
+        const children = Array.from(node.children.values()).sort((left, right) => (
+          normalizeGroupKey(left.label).localeCompare(normalizeGroupKey(right.label))
+        ));
+        node.children = new Map(children.map((child) => [child.kind + "::" + normalizeGroupKey(child.label), child]));
         children.forEach((child) => annotateNode(child, depth + 1));
       }
 
@@ -659,12 +741,14 @@
         return Math.max(currentY, node.y + node.height + ROW_GAP);
       }
 
-      function collectGraph(node) {
+      function collectGraph(node, parent) {
         nodes.push(node);
         nodeById.set(node.id, node);
+        if (parent) {
+          edges.push({ from: parent, to: node });
+        }
         node.children.forEach((child) => {
-          edges.push({ from: node, to: child });
-          collectGraph(child);
+          collectGraph(child, node);
         });
       }
 
@@ -762,11 +846,44 @@
           }
         });
         if (hasValue) {
-          rows.push(item);
+          rows.push.apply(rows, expandDelimitedRows(item));
         }
       }
 
       return rows;
+    }
+
+    function expandDelimitedRows(item) {
+      return Object.keys(item).reduce((variants, fieldName) => {
+        const values = getFieldValues(item[fieldName], fieldName);
+        return variants.flatMap((variant) => values.map((value) => ({ ...variant, [fieldName]: value })));
+      }, [{}]);
+    }
+
+    function getFieldValues(value, fieldName) {
+      const normalized = normalizeValue(value);
+      if (!normalized) {
+        return [""];
+      }
+      if (!MULTI_VALUE_FIELDS.has(fieldName)) {
+        return [normalized];
+      }
+      const parts = normalized
+        .split(/\s+\/\s+/)
+        .map((part) => normalizeValue(part))
+        .filter(Boolean);
+      if (!parts.length) {
+        return [normalized];
+      }
+
+      const uniqueParts = new Map();
+      parts.forEach((part) => {
+        const key = normalizeGroupKey(part);
+        if (!uniqueParts.has(key)) {
+          uniqueParts.set(key, part);
+        }
+      });
+      return Array.from(uniqueParts.values());
     }
 
     function getCellValue(cell, sharedStrings) {
@@ -968,6 +1085,154 @@
 
     function normalizeValue(value) {
       return String(value == null ? "" : value).replace(/\r\n/g, "\n").replace(/\u00a0/g, " ").trim();
+    }
+
+    function normalizeGroupKey(value) {
+      return normalizeValue(value).toLocaleLowerCase();
+    }
+
+    function createEmptyFilters() {
+      return FIELD_SEQUENCE.reduce((filters, field) => {
+        filters[field.key] = "";
+        return filters;
+      }, {});
+    }
+
+    function initializeFilterControls() {
+      FIELD_SEQUENCE.forEach((field) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "filter-field";
+
+        const label = document.createElement("label");
+        label.setAttribute("for", "filter-" + field.kind);
+        label.textContent = field.key;
+
+        const select = document.createElement("select");
+        select.id = "filter-" + field.kind;
+        select.disabled = true;
+        select.addEventListener("change", () => {
+          state.filters[field.key] = select.value;
+          applyFilters();
+        });
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(select);
+        elements.filtersContainer.appendChild(wrapper);
+        filterSelects.set(field.key, select);
+      });
+
+      elements.clearFilters.addEventListener("click", () => {
+        resetFilters();
+        applyFilters();
+      });
+    }
+
+    function renderFilterControls() {
+      const hasRows = state.allRows.length > 0;
+      if (!hasRows) {
+        elements.filterBar.setAttribute("hidden", "");
+      } else {
+        elements.filterBar.removeAttribute("hidden");
+      }
+
+      FIELD_SEQUENCE.forEach((field) => {
+        const select = filterSelects.get(field.key);
+        const options = collectFilterOptions(field.key);
+        const currentValue = state.filters[field.key] || "";
+
+        select.replaceChildren();
+
+        const anyOption = document.createElement("option");
+        anyOption.value = "";
+        anyOption.textContent = "All";
+        select.appendChild(anyOption);
+
+        options.forEach((option) => {
+          const element = document.createElement("option");
+          element.value = option.key;
+          element.textContent = option.label;
+          select.appendChild(element);
+        });
+
+        select.disabled = !hasRows;
+        select.value = options.some((option) => option.key === currentValue) ? currentValue : "";
+      });
+
+      elements.clearFilters.disabled = !hasRows || !hasActiveFilters();
+    }
+
+    function collectFilterOptions(fieldName) {
+      const optionMap = new Map();
+
+      state.allRows.forEach((row) => {
+        const label = normalizeValue(row[fieldName]);
+        if (!label) {
+          return;
+        }
+        const key = normalizeGroupKey(label);
+        if (!optionMap.has(key)) {
+          optionMap.set(key, label);
+        }
+      });
+
+      return Array.from(optionMap.entries())
+        .map(([key, label]) => ({ key, label }))
+        .sort((left, right) => left.key.localeCompare(right.key));
+    }
+
+    function resetFilters() {
+      state.filters = createEmptyFilters();
+      filterSelects.forEach((select) => {
+        select.value = "";
+      });
+    }
+
+    function hasActiveFilters() {
+      return FIELD_SEQUENCE.some((field) => state.filters[field.key]);
+    }
+
+    function applyFilters() {
+      state.rows = state.allRows.filter((row) => FIELD_SEQUENCE.every((field) => {
+        const filterValue = state.filters[field.key];
+        if (!filterValue) {
+          return true;
+        }
+        return normalizeGroupKey(row[field.key]) === filterValue;
+      }));
+
+      const graph = state.rows.length ? buildMindMap(state.rows) : null;
+      state.graph = graph && graph.nodes.length ? graph : null;
+      if (!state.graph || !state.graph.nodeById.has(state.selectedNodeId)) {
+        state.selectedNodeId = state.graph && state.graph.nodes.length ? state.graph.nodes[0].id : null;
+      }
+
+      updateStats();
+      updateJsonPreview();
+      updateEmptyState();
+      renderMindMap();
+      renderSelection();
+    }
+
+    function updateEmptyState() {
+      if (!state.allRows.length) {
+        elements.emptyStateTitle.textContent = "No workbook loaded yet";
+        elements.emptyStateMessage.innerHTML =
+          'After loading the workbook, this page will generate JSON rows and render the mind map from the <code>' +
+          escapeHtml(TARGET_SHEET_NAME) +
+          "</code> sheet.";
+        return;
+      }
+
+      if (!state.rows.length) {
+        elements.emptyStateTitle.textContent = "No matching rows";
+        elements.emptyStateMessage.textContent = "Adjust the filters above to show matching relationships.";
+        return;
+      }
+
+      if (!state.graph || !state.graph.nodes.length) {
+        elements.emptyStateTitle.textContent = "No graph available";
+        elements.emptyStateMessage.textContent = "The current rows do not contain any graphable relationship values.";
+      }
     }
 
     function decodeZipString(bytes) {
