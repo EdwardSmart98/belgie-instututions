@@ -196,6 +196,54 @@
       justify-content: flex-end;
     }
 
+    .tabs {
+      display: inline-flex;
+      gap: 8px;
+      padding: 4px;
+      border-radius: 12px;
+      background: #eef3fb;
+      border: 1px solid var(--border);
+    }
+
+    .tab-button {
+      border: 0;
+      background: transparent;
+      padding: 9px 14px;
+      border-radius: 9px;
+      color: var(--muted);
+    }
+
+    .tab-button.active {
+      background: #ffffff;
+      color: var(--text);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    .view-controls {
+      flex-basis: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pie-options {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pie-options label {
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+    }
+
+    .pie-options > div {
+      min-width: 220px;
+    }
+
     .canvas-wrap {
       position: relative;
       flex: 1;
@@ -210,6 +258,7 @@
     }
 
     svg { display: block; min-width: 100%; }
+    #pieChart { width: 100%; min-height: 680px; }
 
     .empty-state {
       display: grid;
@@ -248,12 +297,72 @@
       margin-bottom: 8px;
     }
 
+    .pie-layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 520px) minmax(260px, 1fr);
+      gap: 24px;
+      align-items: start;
+      padding: 28px;
+    }
+
+    .pie-legend {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .pie-legend button {
+      text-align: left;
+      width: 100%;
+      background: #f8fbff;
+    }
+
+    .pie-legend button.active {
+      border-color: var(--accent);
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+    }
+
+    .pie-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .accordion-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .accordion-list details {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #f8fbff;
+      padding: 12px 14px;
+    }
+
+    .accordion-list summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .accordion-list p,
+    .accordion-list ul {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
     code { font-family: Consolas, "Courier New", monospace; font-size: 0.92em; }
 
     @media (max-width: 1100px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
       .canvas-wrap { min-height: 560px; }
+      .pie-layout { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -329,6 +438,21 @@
         <div class="button-row">
           <button id="fitView" type="button" disabled>Fit view</button>
         </div>
+        <div class="view-controls">
+          <div class="tabs" role="tablist" aria-label="Visualization mode">
+            <button id="mindmapTab" class="tab-button active" type="button" role="tab" aria-selected="true">Mind map</button>
+            <button id="pieTab" class="tab-button" type="button" role="tab" aria-selected="false">Pie chart</button>
+          </div>
+          <div id="pieOptions" class="pie-options" hidden>
+            <div>
+              <label for="pieFieldSelect">Pie chart groups</label>
+              <select id="pieFieldSelect">
+                <option value="Type belanghebbende">Type belanghebbende</option>
+                <option value="Type actor">Type actor</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div id="filterBar" class="filter-bar" hidden>
           <div id="filtersContainer" class="filter-grid"></div>
           <div class="filter-actions">
@@ -348,6 +472,7 @@
           </div>
         </div>
         <svg id="mindmap" xmlns="http://www.w3.org/2000/svg" hidden></svg>
+        <div id="pieChart" hidden></div>
       </section>
     </main>
   </div>
@@ -363,6 +488,9 @@
       { key: "Actor", kind: "actor", maxChars: 28 },
       { key: "Omschrijving", kind: "omschrijving", maxChars: 42 }
     ];
+    const FILTER_FIELDS = FIELD_SEQUENCE.filter((field) => (
+      field.key === "Type belanghebbende" || field.key === "Type actor"
+    ));
     const WIDTH_BY_KIND = {
       root: 220,
       "type-belanghebbende": 220,
@@ -382,6 +510,10 @@
       loadRepositoryWorkbook: document.getElementById("loadRepositoryWorkbook"),
       downloadJson: document.getElementById("downloadJson"),
       fitView: document.getElementById("fitView"),
+      mindmapTab: document.getElementById("mindmapTab"),
+      pieTab: document.getElementById("pieTab"),
+      pieOptions: document.getElementById("pieOptions"),
+      pieFieldSelect: document.getElementById("pieFieldSelect"),
       filterBar: document.getElementById("filterBar"),
       filtersContainer: document.getElementById("filtersContainer"),
       clearFilters: document.getElementById("clearFilters"),
@@ -396,7 +528,8 @@
       emptyState: document.getElementById("emptyState"),
       emptyStateTitle: document.getElementById("emptyStateTitle"),
       emptyStateMessage: document.getElementById("emptyStateMessage"),
-      mindmap: document.getElementById("mindmap")
+      mindmap: document.getElementById("mindmap"),
+      pieChart: document.getElementById("pieChart")
     };
 
     const state = {
@@ -404,7 +537,11 @@
       rows: [],
       graph: null,
       selectedNodeId: null,
-      filters: createEmptyFilters()
+      filters: createEmptyFilters(),
+      viewMode: "mindmap",
+      pieField: "Type belanghebbende",
+      pieChart: null,
+      selectedPieSegmentKey: null
     };
     const filterSelects = new Map();
 
@@ -451,6 +588,20 @@
       wrap.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     });
 
+    elements.mindmapTab.addEventListener("click", () => {
+      setViewMode("mindmap");
+    });
+
+    elements.pieTab.addEventListener("click", () => {
+      setViewMode("pie");
+    });
+
+    elements.pieFieldSelect.addEventListener("change", () => {
+      state.pieField = elements.pieFieldSelect.value;
+      state.selectedPieSegmentKey = null;
+      rebuildDerivedState();
+    });
+
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("autoload") === "1") {
       elements.loadRepositoryWorkbook.click();
@@ -478,13 +629,15 @@
         state.allRows = [];
         state.rows = [];
         state.graph = null;
+        state.pieChart = null;
         state.selectedNodeId = null;
+        state.selectedPieSegmentKey = null;
         resetFilters();
         renderFilterControls();
         updateStats();
         updateJsonPreview();
         updateEmptyState();
-        renderMindMap();
+        renderVisualization();
         renderSelection();
         setError(error.message);
       }
@@ -492,14 +645,23 @@
 
     function updateStats() {
       const graph = state.graph;
+      const pieChart = state.pieChart;
       elements.rowsCount.textContent = state.allRows.length && state.rows.length !== state.allRows.length
         ? state.rows.length + " / " + state.allRows.length
         : String(state.rows.length);
-      elements.nodesCount.textContent = graph ? String(graph.nodes.length) : "0";
-      elements.edgesCount.textContent = graph ? String(graph.edges.length) : "0";
-      elements.depthCount.textContent = graph ? String(graph.maxDepth) : "0";
+      elements.nodesCount.textContent = state.viewMode === "pie"
+        ? (pieChart ? String(pieChart.segments.length) : "0")
+        : (graph ? String(graph.nodes.length) : "0");
+      elements.edgesCount.textContent = state.viewMode === "pie"
+        ? (pieChart ? String(pieChart.total) : "0")
+        : (graph ? String(graph.edges.length) : "0");
+      elements.depthCount.textContent = state.viewMode === "pie"
+        ? "1"
+        : (graph ? String(graph.maxDepth) : "0");
       elements.downloadJson.disabled = !state.rows.length;
-      elements.fitView.disabled = !graph || !graph.nodes.length;
+      elements.fitView.disabled = state.viewMode === "pie"
+        ? !(pieChart && pieChart.segments.length)
+        : (!graph || !graph.nodes.length);
       elements.clearFilters.disabled = !state.allRows.length || !hasActiveFilters();
     }
 
@@ -508,6 +670,11 @@
     }
 
     function renderSelection() {
+      if (state.viewMode === "pie") {
+        renderPieSelection();
+        return;
+      }
+
       if (!state.graph || !state.graph.nodeById.has(state.selectedNodeId)) {
         elements.selectionInfo.textContent = "Click a node in the mind map to inspect the related rows.";
         elements.selectionRows.innerHTML = "";
@@ -546,12 +713,71 @@
         '<ol class="details-list" style="padding-left:18px;">' + list + '</ol>' + moreRows;
     }
 
+    function renderPieSelection() {
+      if (!state.pieChart || !state.pieChart.segments.length) {
+        elements.selectionInfo.textContent = "Select a slice in the pie chart to inspect matching actors.";
+        elements.selectionRows.innerHTML = "";
+        return;
+      }
+
+      const selectedSegment = state.pieChart.segments.find((segment) => segment.key === state.selectedPieSegmentKey)
+        || state.pieChart.segments[0];
+      if (!selectedSegment) {
+        elements.selectionInfo.textContent = "Select a slice in the pie chart to inspect matching actors.";
+        elements.selectionRows.innerHTML = "";
+        return;
+      }
+
+      state.selectedPieSegmentKey = selectedSegment.key;
+      const actorMap = new Map();
+      selectedSegment.rows.forEach((row) => {
+        const actorLabel = normalizeValue(row.Actor) || "Unknown actor";
+        if (!actorMap.has(actorLabel)) {
+          actorMap.set(actorLabel, new Set());
+        }
+        const description = normalizeValue(row.Omschrijving);
+        if (description) {
+          actorMap.get(actorLabel).add(description);
+        }
+      });
+
+      elements.selectionInfo.innerHTML =
+        '<h3 style="margin-bottom:8px;">' + escapeHtml(selectedSegment.label) + '</h3>' +
+        '<div>' +
+          '<span class="pill">Category: ' + escapeHtml(state.pieField) + '</span>' +
+          '<span class="pill">Rows: ' + selectedSegment.count + '</span>' +
+          '<span class="pill">Actors: ' + actorMap.size + '</span>' +
+        '</div>';
+
+      const actorEntries = Array.from(actorMap.entries()).sort((left, right) => left[0].localeCompare(right[0]));
+      elements.selectionRows.innerHTML = actorEntries.length
+        ? '<div class="accordion-list">' + actorEntries.map(([actor, descriptions]) => {
+          const descriptionItems = Array.from(descriptions);
+          const content = descriptionItems.length
+            ? (descriptionItems.length === 1
+              ? '<p>' + escapeHtml(descriptionItems[0]) + '</p>'
+              : '<ul class="details-list">' + descriptionItems.map((description) => '<li>' + escapeHtml(description) + '</li>').join("") + '</ul>')
+            : '<p>No description available.</p>';
+          return '<details><summary>' + escapeHtml(actor) + '</summary>' + content + '</details>';
+        }).join("") + '</div>'
+        : '<p class="muted">No actors are available for this slice.</p>';
+    }
+
+    function renderVisualization() {
+      if (state.viewMode === "pie") {
+        renderPieChart();
+        return;
+      }
+      renderMindMap();
+    }
+
     function renderMindMap() {
       const svg = elements.mindmap;
       svg.replaceChildren();
+      elements.pieChart.innerHTML = "";
 
       if (!state.graph || !state.graph.nodes.length) {
-        setCanvasVisibility(false);
+        setCanvasVisibility(false, "mindmap");
         return;
       }
 
@@ -615,20 +841,159 @@
 
       svg.appendChild(edgeGroup);
       svg.appendChild(nodeGroup);
-      setCanvasVisibility(true);
+      setCanvasVisibility(true, "mindmap");
     }
 
-    function setCanvasVisibility(hasGraph) {
-      if (hasGraph) {
+    function renderPieChart() {
+      const container = elements.pieChart;
+      const chart = state.pieChart;
+      container.replaceChildren();
+      elements.mindmap.replaceChildren();
+
+      if (!chart || !chart.segments.length) {
+        setCanvasVisibility(false, "pie");
+        return;
+      }
+
+      const layout = document.createElement("div");
+      layout.className = "pie-layout";
+
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 420 420");
+      svg.setAttribute("width", "420");
+      svg.setAttribute("height", "420");
+
+      const centerX = 210;
+      const centerY = 210;
+      const radius = 150;
+      let angle = -Math.PI / 2;
+
+      chart.segments.forEach((segment) => {
+        const arc = (segment.count / chart.total) * Math.PI * 2;
+        const nextAngle = angle + arc;
+        const isFullCircle = arc >= (Math.PI * 2) - 0.0001;
+        const slice = isFullCircle
+          ? document.createElementNS("http://www.w3.org/2000/svg", "circle")
+          : document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+        if (isFullCircle) {
+          slice.setAttribute("cx", String(centerX));
+          slice.setAttribute("cy", String(centerY));
+          slice.setAttribute("r", String(radius));
+        } else {
+          slice.setAttribute("d", describePieSlice(centerX, centerY, radius, angle, nextAngle));
+        }
+
+        slice.setAttribute("fill", segment.color);
+        slice.setAttribute("stroke", "#ffffff");
+        slice.setAttribute("stroke-width", "2");
+        slice.style.cursor = "pointer";
+        slice.style.opacity = segment.key === state.selectedPieSegmentKey || (!state.selectedPieSegmentKey && chart.segments[0].key === segment.key) ? "1" : "0.88";
+        slice.addEventListener("click", () => {
+          state.selectedPieSegmentKey = segment.key;
+          renderPieChart();
+          renderSelection();
+        });
+        svg.appendChild(slice);
+
+        const midAngle = angle + (arc / 2);
+        const labelX = centerX + (Math.cos(midAngle) * (radius * 0.62));
+        const labelY = centerY + (Math.sin(midAngle) * (radius * 0.62));
+        if ((segment.count / chart.total) >= 0.05) {
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", String(labelX));
+          text.setAttribute("y", String(labelY));
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("fill", "#102033");
+          text.setAttribute("font-size", "12");
+          text.setAttribute("font-weight", "700");
+          text.textContent = String(segment.count);
+          svg.appendChild(text);
+        }
+
+        angle = nextAngle;
+      });
+
+      const innerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      innerCircle.setAttribute("cx", String(centerX));
+      innerCircle.setAttribute("cy", String(centerY));
+      innerCircle.setAttribute("r", "60");
+      innerCircle.setAttribute("fill", "#ffffff");
+      innerCircle.setAttribute("stroke", "#dbe6f5");
+      svg.appendChild(innerCircle);
+
+      const totalLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      totalLabel.setAttribute("x", String(centerX));
+      totalLabel.setAttribute("y", "200");
+      totalLabel.setAttribute("text-anchor", "middle");
+      totalLabel.setAttribute("fill", "#607089");
+      totalLabel.setAttribute("font-size", "13");
+      totalLabel.textContent = state.pieField;
+      svg.appendChild(totalLabel);
+
+      const totalValue = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      totalValue.setAttribute("x", String(centerX));
+      totalValue.setAttribute("y", "224");
+      totalValue.setAttribute("text-anchor", "middle");
+      totalValue.setAttribute("fill", "#102033");
+      totalValue.setAttribute("font-size", "22");
+      totalValue.setAttribute("font-weight", "700");
+      totalValue.textContent = String(chart.total);
+      svg.appendChild(totalValue);
+
+      layout.appendChild(svg);
+
+      const legend = document.createElement("div");
+      legend.className = "pie-legend";
+      chart.segments.forEach((segment) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        if (segment.key === state.selectedPieSegmentKey || (!state.selectedPieSegmentKey && chart.segments[0].key === segment.key)) {
+          button.classList.add("active");
+        }
+        button.innerHTML =
+          '<span class="pie-swatch" style="background:' + escapeHtml(segment.color) + ';"></span>' +
+          escapeHtml(segment.label) +
+          ' <span class="muted">(' + segment.count + ')</span>';
+        button.addEventListener("click", () => {
+          state.selectedPieSegmentKey = segment.key;
+          renderPieChart();
+          renderSelection();
+        });
+        legend.appendChild(button);
+      });
+      layout.appendChild(legend);
+
+      container.appendChild(layout);
+      setCanvasVisibility(true, "pie");
+    }
+
+    function setCanvasVisibility(hasContent, mode) {
+      const showMindMap = hasContent && mode === "mindmap";
+      const showPie = hasContent && mode === "pie";
+
+      if (showMindMap) {
         elements.mindmap.removeAttribute("hidden");
         elements.mindmap.style.display = "block";
+      } else {
+        elements.mindmap.setAttribute("hidden", "");
+        elements.mindmap.style.display = "none";
+      }
+
+      if (showPie) {
+        elements.pieChart.removeAttribute("hidden");
+        elements.pieChart.style.display = "block";
+      } else {
+        elements.pieChart.setAttribute("hidden", "");
+        elements.pieChart.style.display = "none";
+      }
+
+      if (hasContent) {
         elements.emptyState.setAttribute("hidden", "");
         elements.emptyState.style.display = "none";
         return;
       }
 
-      elements.mindmap.setAttribute("hidden", "");
-      elements.mindmap.style.display = "none";
       elements.emptyState.removeAttribute("hidden");
       elements.emptyState.style.display = "grid";
     }
@@ -1092,14 +1457,14 @@
     }
 
     function createEmptyFilters() {
-      return FIELD_SEQUENCE.reduce((filters, field) => {
+      return FILTER_FIELDS.reduce((filters, field) => {
         filters[field.key] = "";
         return filters;
       }, {});
     }
 
     function initializeFilterControls() {
-      FIELD_SEQUENCE.forEach((field) => {
+      FILTER_FIELDS.forEach((field) => {
         const wrapper = document.createElement("div");
         wrapper.className = "filter-field";
 
@@ -1135,7 +1500,7 @@
         elements.filterBar.removeAttribute("hidden");
       }
 
-      FIELD_SEQUENCE.forEach((field) => {
+      FILTER_FIELDS.forEach((field) => {
         const select = filterSelects.get(field.key);
         const options = collectFilterOptions(field.key);
         const currentValue = state.filters[field.key] || "";
@@ -1188,11 +1553,11 @@
     }
 
     function hasActiveFilters() {
-      return FIELD_SEQUENCE.some((field) => state.filters[field.key]);
+      return FILTER_FIELDS.some((field) => state.filters[field.key]);
     }
 
     function applyFilters() {
-      state.rows = state.allRows.filter((row) => FIELD_SEQUENCE.every((field) => {
+      state.rows = state.allRows.filter((row) => FILTER_FIELDS.every((field) => {
         const filterValue = state.filters[field.key];
         if (!filterValue) {
           return true;
@@ -1200,17 +1565,7 @@
         return normalizeGroupKey(row[field.key]) === filterValue;
       }));
 
-      const graph = state.rows.length ? buildMindMap(state.rows) : null;
-      state.graph = graph && graph.nodes.length ? graph : null;
-      if (!state.graph || !state.graph.nodeById.has(state.selectedNodeId)) {
-        state.selectedNodeId = state.graph && state.graph.nodes.length ? state.graph.nodes[0].id : null;
-      }
-
-      updateStats();
-      updateJsonPreview();
-      updateEmptyState();
-      renderMindMap();
-      renderSelection();
+      rebuildDerivedState();
     }
 
     function updateEmptyState() {
@@ -1233,6 +1588,98 @@
         elements.emptyStateTitle.textContent = "No graph available";
         elements.emptyStateMessage.textContent = "The current rows do not contain any graphable relationship values.";
       }
+    }
+
+    function rebuildDerivedState() {
+      const graph = state.rows.length ? buildMindMap(state.rows) : null;
+      state.graph = graph && graph.nodes.length ? graph : null;
+      state.pieChart = state.rows.length ? buildPieChart(state.rows, state.pieField) : null;
+
+      if (!state.graph || !state.graph.nodeById.has(state.selectedNodeId)) {
+        state.selectedNodeId = state.graph && state.graph.nodes.length ? state.graph.nodes[0].id : null;
+      }
+      if (!state.pieChart || !state.pieChart.segments.some((segment) => segment.key === state.selectedPieSegmentKey)) {
+        state.selectedPieSegmentKey = state.pieChart && state.pieChart.segments.length ? state.pieChart.segments[0].key : null;
+      }
+
+      updateTabState();
+      updateStats();
+      updateJsonPreview();
+      updateEmptyState();
+      renderVisualization();
+      renderSelection();
+    }
+
+    function setViewMode(mode) {
+      if (state.viewMode === mode) {
+        return;
+      }
+      state.viewMode = mode;
+      updateTabState();
+      updateStats();
+      updateEmptyState();
+      renderVisualization();
+      renderSelection();
+    }
+
+    function updateTabState() {
+      const isPie = state.viewMode === "pie";
+      elements.mindmapTab.classList.toggle("active", !isPie);
+      elements.pieTab.classList.toggle("active", isPie);
+      elements.mindmapTab.setAttribute("aria-selected", isPie ? "false" : "true");
+      elements.pieTab.setAttribute("aria-selected", isPie ? "true" : "false");
+      if (isPie) {
+        elements.pieOptions.removeAttribute("hidden");
+      } else {
+        elements.pieOptions.setAttribute("hidden", "");
+      }
+      elements.pieFieldSelect.value = state.pieField;
+    }
+
+    function buildPieChart(rows, fieldName) {
+      const buckets = new Map();
+      rows.forEach((row) => {
+        const label = normalizeValue(row[fieldName]);
+        if (!label) {
+          return;
+        }
+        const key = normalizeGroupKey(label);
+        if (!buckets.has(key)) {
+          buckets.set(key, { key, label, rows: [] });
+        }
+        buckets.get(key).rows.push(row);
+      });
+
+      const palette = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#14b8a6", "#f97316", "#6366f1", "#ec4899", "#84cc16"];
+      const segments = Array.from(buckets.values())
+        .sort((left, right) => right.rows.length - left.rows.length || left.label.localeCompare(right.label))
+        .map((entry, index) => ({
+          key: entry.key,
+          label: entry.label,
+          rows: entry.rows,
+          count: entry.rows.length,
+          color: palette[index % palette.length]
+        }));
+
+      return {
+        fieldName,
+        total: segments.reduce((sum, segment) => sum + segment.count, 0),
+        segments
+      };
+    }
+
+    function describePieSlice(cx, cy, radius, startAngle, endAngle) {
+      const startX = cx + (Math.cos(startAngle) * radius);
+      const startY = cy + (Math.sin(startAngle) * radius);
+      const endX = cx + (Math.cos(endAngle) * radius);
+      const endY = cy + (Math.sin(endAngle) * radius);
+      const largeArcFlag = endAngle - startAngle > Math.PI ? "1" : "0";
+      return [
+        "M", cx, cy,
+        "L", startX, startY,
+        "A", radius, radius, 0, largeArcFlag, 1, endX, endY,
+        "Z"
+      ].join(" ");
     }
 
     function decodeZipString(bytes) {
